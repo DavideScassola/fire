@@ -45,21 +45,27 @@ def get_best_model_data(name, experiments):
 
 
 def distribution_plot(df: pd.DataFrame, name: str):
-
+    colors = ('blue', 'green', 'red')
     fig, axs = plt.subplots()
     df_performance_test = df[['performance_test', 'reward']].pivot(
         columns=['reward'], values='performance_test')
     if len(df_performance_test) > 3:
-        boxplot = df_performance_test.boxplot()
-        boxplot.set_title(
+        #boxplot = df_performance_test.boxplot()
+        boxplot = plt.boxplot(df_performance_test)
+        plt.set_title(
             f'Test set performance (Sharpe Ratio)\n{len(df_performance_test)} experiments')
+              
+        for patch, color in zip(boxplot['boxes'], colors):
+            patch.set_facecolor(color)  
+
         fig.savefig(f'{name}.png')
 
 
 def distribution_plot(df: pd.DataFrame, name: str):
-    sns.set_theme()
+    #sns.set_theme()
 
     sets = ('test', 'eval', 'train')
+    colors = ('blue', 'green', 'red')
     df_plot = df
 
     df_plot = pd.concat({c: df[[f'performance_{c}', 'reward']].rename(
@@ -70,8 +76,9 @@ def distribution_plot(df: pd.DataFrame, name: str):
 
     samples = int(len(df)//len(set(df_plot['reward'])))
 
+    my_pal = {'train': 'red', 'eval': 'green', 'test': 'blue'}
     if samples > 4:
-        sns.boxplot(data=df_plot, x="reward", y="performance", hue="dataset").set_title(
+        sns.boxplot(data=df_plot, x="reward", y="performance", hue="dataset", palette=my_pal).set_title(
             f'{name.split("/")[-1]} ({samples} experiments)')
         os.makedirs('plots', exist_ok=True)
         plt.savefig(f'plots/{name.split("/")[-1]}.png')
