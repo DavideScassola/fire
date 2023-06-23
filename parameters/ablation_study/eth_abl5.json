@@ -1,6 +1,6 @@
 {
     "dataset": {
-        "name": "eth_sr",
+        "name": "eth_powc",
         "path": "datasets/eth_h.csv",
         "column_price": "close",
         "time_column": "start",
