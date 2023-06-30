@@ -6,6 +6,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
 
+plt.rcParams["figure.figsize"] = (6,2.4)
+plt.rcParams["figure.dpi"] = 150
+plt.tight_layout()
+
+
+"""
+plt.rcParams.update({
+    "text.usetex": True,
+    "font.family": "Helvetica"
+})
+"""
+
 
 def listdir(dir: str = './'):
     return [os.path.join(dir, f) for f in os.listdir(dir)]
@@ -69,18 +81,30 @@ def distribution_plot(df: pd.DataFrame, name: str):
     df_plot = df
 
     df_plot = pd.concat({c: df[[f'performance_{c}', 'reward']].rename(
-        {f'performance_{c}': 'performance'}, axis='columns') for c in sets})
+        {f'performance_{c}': 'Sharpe Ratio'}, axis='columns') for c in sets})
 
     df_plot = df_plot.reset_index(level=0)
-    df_plot.rename({'level_0': 'dataset'}, axis='columns', inplace=True)
+    df_plot.rename({'level_0': 'Dataset'}, axis='columns', inplace=True)
 
     samples = int(len(df)//len(set(df_plot['reward'])))
 
     my_pal = {'train': 'red', 'eval': 'green', 'test': 'blue'}
     if samples > 4:
-        sns.boxplot(data=df_plot, x="reward", y="performance", hue="dataset", palette=my_pal).set_title(
+        g = sns.boxplot(data=df_plot, x="reward", y="Sharpe Ratio", hue="Dataset", palette=my_pal).set_title(
             f'{name.split("/")[-1]} ({samples} experiments)')
+
+        ax = g.axes
+        handles, labels = ax.get_legend_handles_labels()
+        ax.legend(handles=handles, labels=labels, title=None)
+        
+        plt.ylabel("Sharpe Ratio")
+        plt.grid(color='gray', linestyle='--', linewidth=1, alpha = 0.3, zorder = 0., axis='y')
+        plt.title("ETH") # Change this
+        #plt.legend(bbox_to_anchor=(-1., 1.1), loc='upper left', borderaxespad=0)
+
+
         os.makedirs('plots', exist_ok=True)
+        plt.savefig(f'plots/{name.split("/")[-1]}.svg')
         plt.savefig(f'plots/{name.split("/")[-1]}.png')
         df_plot.to_csv(f'plots/{name.split("/")[-1]}.csv')
 
